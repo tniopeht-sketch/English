@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Лера и Женя: English Pro</title>
+    <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    
+    <style>
+        :root {
+            --bg-color: #f2f0f9; 
+            --text-main: #5e6d81;
+            --accent-blue: #667eea;
+            --correct: #a8e6cf;
+            --wrong: #ff8b94;
+            --soft-shadow: 8px 8px 16px #d1d9e9, -8px -8px 16px #ffffff;
+            --inner-shadow: inset 5px 5px 10px #d1d9e9, inset -5px -5px 10px #ffffff;
+        }
+
+        body {
+            margin: 0; background: linear-gradient(135deg, #f2f0f9 0%, #e6e9f0 100%);
+            font-family: -apple-system, system-ui, sans-serif; height: 100vh; 
+            display: flex; flex-direction: column; overflow: hidden; position: relative;
+        }
+
+        body::before {
+            content: ""; position: absolute; width: 100%; height: 100%;
+            background-image: radial-gradient(#667eea11 1px, transparent 1px);
+            background-size: 25px 25px; z-index: -1;
+        }
+
+        .header { padding: 15px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+        .app-title-card {
+            background: var(--bg-color); padding: 8px 20px; border-radius: 50px;
+            box-shadow: 6px 6px 12px #d1d9e9, -6px -6px 12px #ffffff;
+            display: flex; flex-direction: column; align-items: center; min-width: 220px;
+        }
+        .names { font-weight: 800; background: linear-gradient(45deg, #ff85a2, #4facfe); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 1.1rem; }
+        .round-info { color: #667eea; font-size: 0.8rem; font-weight: 700; margin-top: 2px; }
+
+        .progress-container { width: 100%; max-width: 280px; margin-top: 5px; }
+        .progress-info { display: flex; justify-content: center; font-size: 0.75rem; font-weight: 800; color: var(--accent-blue); margin-bottom: 4px; }
+        .progress-track { height: 10px; background: var(--bg-color); border-radius: 10px; box-shadow: var(--inner-shadow); overflow: hidden; }
+        .progress-fill { width: 0%; height: 100%; background: linear-gradient(90deg, #667eea, #764ba2); transition: width 0.5s ease; }
+
+        .game-container { flex: 1; position: relative; display: flex; justify-content: center; align-items: center; padding: 20px; transition: opacity 0.5s; }
+
+        #step-counter {
+            position: absolute; bottom: 15px; right: 15px; font-size: 0.85rem; font-weight: 800; color: #a0aec0;
+            background: var(--bg-color); padding: 4px 10px; border-radius: 20px; box-shadow: 4px 4px 8px #d1d9e9, -4px -4px 8px #ffffff;
+        }
+
+        .drop-zone {
+            position: absolute; width: 110px; height: 150px; display: flex; align-items: center; justify-content: center;
+            background: var(--bg-color); border-radius: 25px; font-weight: 600; color: var(--text-main);
+            box-shadow: var(--inner-shadow); transition: all 0.3s; font-size: 0.9rem; text-align: center; padding: 8px; box-sizing: border-box;
+        }
+        .top { top: 0px; } .bottom { bottom: 0px; } .left { left: 10px; } .right { right: 10px; }
+        
+        #drag-card {
+            width: 120px; height: 160px; background: var(--bg-color); border-radius: 30px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            box-shadow: 10px 10px 20px #d1d9e9, -10px -10px 20px #ffffff; touch-action: none; z-index: 100;
+        }
+
+        .sentence-display { font-size: 1.2rem; font-weight: 600; color: var(--text-main); text-align: center; line-height: 1.4; }
+        .translation-hint { font-size: 0.9rem; color: #a0aec0; margin-bottom: 15px; font-style: italic; text-align: center; }
+        .blank-placeholder { border-bottom: 2px dashed var(--accent-blue); padding: 0 10px; color: #a0aec0; }
+        
+        .word-chip {
+            padding: 12px 16px; background: var(--bg-color); border-radius: 15px;
+            box-shadow: 6px 6px 12px #d1d9e9, -6px -6px 12px #ffffff;
+            border: none; cursor: pointer; color: var(--text-main); font-weight: 600; transition: 0.2s;
+        }
+        .word-chip:active { box-shadow: var(--inner-shadow); transform: scale(0.95); }
+
+        #loader {
+            position: fixed; inset: 0; background: var(--bg-color); z-index: 3000;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+        }
+
+        #finish-overlay {
+            position: fixed; top: 50%; left: 50%; width: 0; height: 0;
+            background: radial-gradient(circle, #764ba2 0%, #ff85a2 100%);
+            border-radius: 50%; transform: translate(-50%, -50%); z-index: 2000;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            opacity: 0; pointer-events: none; transition: all 0.8s ease-in;
+        }
+        #finish-overlay.active { width: 300vmax; height: 300vmax; opacity: 1; border-radius: 0; pointer-events: auto; }
+        
+        .tab-bar { padding-bottom: env(safe-area-inset-bottom, 20px); display: flex; justify-content: center; gap: 8px; padding-top: 10px; }
+        .nav-btn {
+            padding: 12px 10px; border-radius: 15px; border: none; background: var(--bg-color);
+            box-shadow: 5px 5px 10px #d1d9e9, -5px -5px 10px #ffffff; color: #7e8ba3; font-weight: 700; font-size: 0.7rem;
+        }
+        .nav-btn.active { color: var(--accent-blue); box-shadow: var(--inner-shadow); }
+
+        .is-correct-bg { background-color: var(--correct) !important; box-shadow: inset 4px 4px 8px #8ac7b1; }
+        .is-wrong-bg { background-color: var(--wrong) !important; box-shadow: inset 4px 4px 8px #e27a82; }
+    </style>
+</head>
+<body>
+
+    <div id="loader">
+        <h2 class="names">Подключаемся к знаниям...</h2>
+        <p style="color: #a0aec0;">Загрузка Google Sheets</p>
+    </div>
+
+    <div id="finish-overlay">
+        <h1 style="color:white; text-align:center; font-size: 2rem; margin-bottom: 20px;">РАУНД ЗАВЕРШЕН! 🎉</h1>
+        <div style="display:flex; flex-direction:column; gap:12px;">
+            <button class="word-chip" onclick="nextRound()">Следующий раунд</button>
+            <button class="word-chip" onclick="resetApp()" style="background:#ff8b94; color:white;">Сбросить всё (1 раунд)</button>
+        </div>
+    </div>
+
+    <header class="header">
+        <div class="app-title-card">
+            <span class="names">Лера и Женя</span>
+            <span class="round-info" id="round-title">Загрузка...</span>
+        </div>
+        <div class="progress-container">
+            <div class="progress-info" id="progress-percent">0%</div>
+            <div class="progress-track"><div id="progress-fill" class="progress-fill"></div></div>
+        </div>
+    </header>
+
+    <main class="game-container" id="game-area"></main>
+    <div id="step-counter">0/0</div>
+
+    <nav class="tab-bar">
+        <button id="nav-dict" class="nav-btn active" onclick="setMode('dict')">🃏 Словарик</button>
+        <button id="nav-blanks" class="nav-btn" onclick="setMode('blanks')">✍️ Пропуски</button>
+        <button id="nav-const" class="nav-btn" onclick="setMode('const')">🧩 Сборка</button>
+    </nav>
+
+    <script>
+        // ==========================================
+        // 🔗 ТВОИ ССЫЛКИ НА CSV (ВСТАВЬ СЮДА!)
+        // ==========================================
+        const SHEET_LINKS = {
+            dict: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZZ_UzEvNbXn4QX_va2kX0DcsFKz30Zt-ygcrPs2mUR7azlidmrBfpKGDEjFWt234ZnoNUmJ0qoZI3/pubhtml?gid=0&single=true",
+            blanks: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZZ_UzEvNbXn4QX_va2kX0DcsFKz30Zt-ygcrPs2mUR7azlidmrBfpKGDEjFWt234ZnoNUmJ0qoZI3/pub?gid=726200189&single=true&output=csv",
+            const: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZZ_UzEvNbXn4QX_va2kX0DcsFKz30Zt-ygcrPs2mUR7azlidmrBfpKGDEjFWt234ZnoNUmJ0qoZI3/pub?gid=1342412199&single=true&output=csv"
+        };
+
+        let RAW_DATA = { dict: [], blanks: [], const: [] };
+        let currentMode = 'dict';
+        let currentIndex = 0;
+        let x = 0, y = 0;
+        let builtArr = [];
+
+        // Загружаем прогресс раундов
+        let roundProgress = {
+            dict: parseInt(localStorage.getItem('round_dict')) || 1,
+            blanks: parseInt(localStorage.getItem('round_blanks')) || 1,
+            const: parseInt(localStorage.getItem('round_const')) || 1
+        };
+
+        async function init() {
+            try {
+                for (let mode in SHEET_LINKS) {
+                    const response = await fetch(SHEET_LINKS[mode]);
+                    const csvText = await response.text();
+                    const parsed = Papa.parse(csvText, { header: true, skipEmptyLines: true });
+                    RAW_DATA[mode] = parsed.data;
+                }
+                document.getElementById('loader').style.display = 'none';
+                renderStep();
+            } catch (e) { 
+                alert("Ошибка! Проверь публикацию таблиц в формат CSV."); 
+            }
+        }
+
+        function getActiveData() {
+            let r = roundProgress[currentMode];
+            return RAW_DATA[currentMode].filter(item => parseInt(item.round) === r);
+        }
+
+        function setMode(mode) {
+            currentMode = mode;
+            currentIndex = 0;
+            builtArr = [];
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('nav-' + mode).classList.add('active');
+            renderStep();
+        }
+
+        function renderStep() {
+            const area = document.getElementById('game-area');
+            const modeData = getActiveData();
+            const total = modeData.length;
+            const curRound = roundProgress[currentMode];
+
+            document.getElementById('round-title').innerText = `${getModeName(currentMode)} | Раунд ${curRound}`;
+
+            if (total === 0) {
+                area.innerHTML = `<div style="text-align:center; color:var(--text-main)">Раунды в этом режиме закончились!<br>Ты молодец! 🏆</div>`;
+                return;
+            }
+
+            if (currentIndex >= total) {
+                showFinish();
+                return;
+            }
+
+            const data = modeData[currentIndex];
+            const percent = Math.round((currentIndex / total) * 100);
+            document.getElementById('progress-fill').style.width = percent + '%';
+            document.getElementById('progress-percent').innerText = percent + '%';
+            document.getElementById('step-counter').innerText = (currentIndex + 1) + '/' + total;
+
+            if (currentMode === 'dict') {
+                area.innerHTML = `
+                    <div id="drop-0" class="drop-zone top">${data.opt0}</div>
+                    <div id="drop-1" class="drop-zone left">${data.opt1}</div>
+                    <div id="drop-2" class="drop-zone right">${data.opt2}</div>
+                    <div id="drop-3" class="drop-zone bottom">${data.opt3}</div>
+                    <div id="drag-card">
+                        <span style="font-size:1.4rem; font-weight:800; color:var(--accent-blue); text-align:center; padding: 0 5px">${data.word}</span>
+                        <span style="color:#a0aec0; font-size:0.8rem; margin-top:5px;">${data.trans}</span>
+                    </div>
+                `;
+                initDragLogic(parseInt(data.correct));
+            } else if (currentMode === 'blanks') {
+                const parts = data.sentence.split('___');
+                const opts = [data.opt0, data.opt1, data.opt2, data.opt3];
+                area.innerHTML = `
+                    <div style="display:flex; flex-direction:column; align-items:center; gap:20px; width:100%;">
+                        <div class="sentence-display">${parts[0]} <span class="blank-placeholder" id="placeholder">___</span> ${parts[1]}</div>
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; width:100%; max-width:280px;">
+                            ${opts.map((opt, i) => `<button class="word-chip" onclick="checkBlankChoice(${i}, ${data.correct}, this)">${opt}</button>`).join('')}
+                        </div>
+                    </div>
+                `;
+            } else if (currentMode === 'const') {
+                const chips = data.chips.split(',').sort(() => Math.random() - 0.5);
+                area.innerHTML = `
+                    <div style="display:flex; flex-direction:column; align-items:center; gap:15px; width:100%;">
+                        <div class="translation-hint">${data.ru}</div>
+                        <div id="built-sentence" class="sentence-display" style="min-height:40px; border-bottom:2px dashed #d1d9e9; width:100%; max-width:320px;">
+                            ${builtArr.join(' ')}
+                        </div>
+                        <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:8px;">
+                            ${chips.map(word => {
+                                const countInBuilt = builtArr.filter(w => w === word).length;
+                                const countInTotal = chips.filter(w => w === word).length;
+                                return `<button class="word-chip" style="display:${countInBuilt >= countInTotal ? 'none' : 'block'}" onclick="handleConstClick(this, '${data.correct}')">${word}</button>`;
+                            }).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function getModeName(m) {
+            return m === 'dict' ? 'Словарик' : m === 'blanks' ? 'Пропуски' : 'Сборка';
+        }
+
+        function initDragLogic(correctIdx) {
+            interact('#drag-card').draggable({
+                listeners: {
+                    move(e) { x += e.dx; y += e.dy; e.target.style.transform = `translate(${x}px, ${y}px) rotate(${x/15}deg)`; },
+                    end(e) { x = 0; y = 0; e.target.style.transition = '0.4s'; e.target.style.transform = `translate(0,0)`; }
+                }
+            });
+            interact('.drop-zone').dropzone({
+                overlap: 0.1,
+                ondrop(e) {
+                    if (parseInt(e.target.id.split('-')[1]) === correctIdx) {
+                        e.target.classList.add('is-correct-bg');
+                        setTimeout(() => { currentIndex++; renderStep(); }, 500);
+                    } else {
+                        e.target.classList.add('is-wrong-bg');
+                        setTimeout(() => e.target.classList.remove('is-wrong-bg'), 800);
+                    }
+                }
+            });
+        }
+
+        function checkBlankChoice(idx, correct, btn) {
+            if (idx === correct) {
+                btn.classList.add('is-correct-bg');
+                document.getElementById('placeholder').innerText = btn.innerText;
+                setTimeout(() => { currentIndex++; renderStep(); }, 600);
+            } else {
+                btn.classList.add('is-wrong-bg');
+                setTimeout(() => btn.classList.remove('is-wrong-bg'), 800);
+            }
+        }
+
+        function handleConstClick(btn, target) {
+            builtArr.push(btn.innerText);
+            if (target.startsWith(builtArr.join(' '))) {
+                if (builtArr.join(' ') === target) {
+                    currentIndex++; builtArr = []; setTimeout(renderStep, 300);
+                } else { renderStep(); }
+            } else {
+                btn.classList.add('is-wrong-bg');
+                setTimeout(() => { builtArr = []; renderStep(); }, 500);
+            }
+        }
+
+        function showFinish() {
+            document.getElementById('finish-overlay').classList.add('active');
+            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+        }
+
+        function nextRound() {
+            roundProgress[currentMode]++;
+            localStorage.setItem(`round_${currentMode}`, roundProgress[currentMode]);
+            currentIndex = 0;
+            document.getElementById('finish-overlay').classList.remove('active');
+            renderStep();
+        }
+
+        function resetApp() {
+            if(confirm("Сбросить весь прогресс и начать с 1 раунда во всех режимах?")) {
+                localStorage.clear();
+                location.reload();
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html>
