@@ -33,12 +33,13 @@
 
         .header { padding: 15px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
         .app-title-card {
-            background: var(--bg-color); padding: 8px 20px; border-radius: 50px;
+            background: var(--bg-color); padding: 10px 25px; border-radius: 50px;
             box-shadow: 6px 6px 12px #d1d9e9, -6px -6px 12px #ffffff;
-            display: flex; flex-direction: column; align-items: center; min-width: 220px;
+            display: flex; flex-direction: column; align-items: center; min-width: 240px;
         }
-        .names { font-weight: 800; background: linear-gradient(45deg, #ff85a2, #4facfe); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 1.1rem; }
-        .round-info { color: #667eea; font-size: 0.8rem; font-weight: 700; margin-top: 2px; }
+        .names { font-weight: 800; background: linear-gradient(45deg, #ff85a2, #4facfe); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 1.2rem; }
+        .sub-title { font-size: 0.85rem; color: #a0aec0; font-weight: 600; letter-spacing: 1px; }
+        .round-info { color: #667eea; font-size: 0.8rem; font-weight: 700; margin-top: 5px; }
 
         .progress-container { width: 100%; max-width: 280px; margin-top: 5px; }
         .progress-info { display: flex; justify-content: center; font-size: 0.75rem; font-weight: 800; color: var(--accent-blue); margin-bottom: 4px; }
@@ -52,6 +53,7 @@
             background: var(--bg-color); padding: 4px 10px; border-radius: 20px; box-shadow: 4px 4px 8px #d1d9e9, -4px -4px 8px #ffffff;
         }
 
+        /* Зоны для перетаскивания */
         .drop-zone {
             position: absolute; width: 110px; height: 150px; display: flex; align-items: center; justify-content: center;
             background: var(--bg-color); border-radius: 25px; font-weight: 600; color: var(--text-main);
@@ -60,12 +62,12 @@
         .top { top: 0px; } .bottom { bottom: 0px; } .left { left: 10px; } .right { right: 10px; }
         
         #drag-card {
-            width: 120px; height: 160px; background: var(--bg-color); border-radius: 30px;
+            width: 125px; height: 165px; background: var(--bg-color); border-radius: 30px;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             box-shadow: 10px 10px 20px #d1d9e9, -10px -10px 20px #ffffff; touch-action: none; z-index: 100;
         }
 
-        .sentence-display { font-size: 1.2rem; font-weight: 600; color: var(--text-main); text-align: center; line-height: 1.4; }
+        .sentence-display { font-size: 1.25rem; font-weight: 600; color: var(--text-main); text-align: center; line-height: 1.4; }
         .translation-hint { font-size: 0.9rem; color: #a0aec0; margin-bottom: 15px; font-style: italic; text-align: center; }
         .blank-placeholder { border-bottom: 2px dashed var(--accent-blue); padding: 0 10px; color: #a0aec0; }
         
@@ -97,8 +99,8 @@
         }
         .nav-btn.active { color: var(--accent-blue); box-shadow: var(--inner-shadow); }
 
-        .is-correct-bg { background-color: var(--correct) !important; box-shadow: inset 4px 4px 8px #8ac7b1; }
-        .is-wrong-bg { background-color: var(--wrong) !important; box-shadow: inset 4px 4px 8px #e27a82; }
+        .is-correct-bg { background-color: var(--correct) !important; box-shadow: inset 4px 4px 8px #8ac7b1 !important; }
+        .is-wrong-bg { background-color: var(--wrong) !important; box-shadow: inset 4px 4px 8px #e27a82 !important; }
     </style>
 </head>
 <body>
@@ -119,6 +121,7 @@
     <header class="header">
         <div class="app-title-card">
             <span class="names">Лера и Женя</span>
+            <span class="sub-title">Learn English</span>
             <span class="round-info" id="round-title">Загрузка...</span>
         </div>
         <div class="progress-container">
@@ -138,12 +141,12 @@
 
     <script>
         // ==========================================
-        // 🔗 ТВОИ ССЫЛКИ НА CSV (ВСТАВЬ СЮДА!)
+        // 🔗 ВСТАВЬ СВОИ ССЫЛКИ НИЖЕ
         // ==========================================
         const SHEET_LINKS = {
-            dict: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZZ_UzEvNbXn4QX_va2kX0DcsFKz30Zt-ygcrPs2mUR7azlidmrBfpKGDEjFWt234ZnoNUmJ0qoZI3/pubhtml?gid=0&single=true",
-            blanks: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZZ_UzEvNbXn4QX_va2kX0DcsFKz30Zt-ygcrPs2mUR7azlidmrBfpKGDEjFWt234ZnoNUmJ0qoZI3/pub?gid=726200189&single=true&output=csv",
-            const: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZZ_UzEvNbXn4QX_va2kX0DcsFKz30Zt-ygcrPs2mUR7azlidmrBfpKGDEjFWt234ZnoNUmJ0qoZI3/pub?gid=1342412199&single=true&output=csv"
+            dict: "ССЫЛКА_CSV_DICT",
+            blanks: "ССЫЛКА_CSV_BLANKS",
+            const: "ССЫЛКА_CSV_CONST"
         };
 
         let RAW_DATA = { dict: [], blanks: [], const: [] };
@@ -152,7 +155,7 @@
         let x = 0, y = 0;
         let builtArr = [];
 
-        // Загружаем прогресс раундов
+        // Прогресс раундов
         let roundProgress = {
             dict: parseInt(localStorage.getItem('round_dict')) || 1,
             blanks: parseInt(localStorage.getItem('round_blanks')) || 1,
@@ -164,19 +167,33 @@
                 for (let mode in SHEET_LINKS) {
                     const response = await fetch(SHEET_LINKS[mode]);
                     const csvText = await response.text();
-                    const parsed = Papa.parse(csvText, { header: true, skipEmptyLines: true });
+                    
+                    if (csvText.includes("<!DOCTYPE")) {
+                        console.error(`Ошибка в ${mode}: Ссылка не на CSV!`);
+                        continue;
+                    }
+
+                    const parsed = Papa.parse(csvText, { 
+                        header: true, 
+                        skipEmptyLines: true,
+                        dynamicTyping: true 
+                    });
                     RAW_DATA[mode] = parsed.data;
                 }
                 document.getElementById('loader').style.display = 'none';
                 renderStep();
             } catch (e) { 
-                alert("Ошибка! Проверь публикацию таблиц в формат CSV."); 
+                alert("Ошибка! Проверь интернет и ссылки на таблицы."); 
             }
         }
 
         function getActiveData() {
-            let r = roundProgress[currentMode];
-            return RAW_DATA[currentMode].filter(item => parseInt(item.round) === r);
+            let r = parseInt(roundProgress[currentMode]);
+            // Фильтруем данные, превращая round в число и убирая пробелы
+            return RAW_DATA[currentMode].filter(item => {
+                let itemRound = parseInt(String(item.round).trim());
+                return itemRound === r;
+            });
         }
 
         function setMode(mode) {
@@ -197,7 +214,12 @@
             document.getElementById('round-title').innerText = `${getModeName(currentMode)} | Раунд ${curRound}`;
 
             if (total === 0) {
-                area.innerHTML = `<div style="text-align:center; color:var(--text-main)">Раунды в этом режиме закончились!<br>Ты молодец! 🏆</div>`;
+                area.innerHTML = `
+                    <div style="text-align:center; color:var(--text-main); padding: 20px;">
+                        <h3>Раунды закончились! 🏆</h3>
+                        <p>Ты прошла всё, что Женя подготовил для этого режима.</p>
+                        <button class="word-chip" onclick="resetApp()">Начать сначала</button>
+                    </div>`;
                 return;
             }
 
@@ -220,26 +242,26 @@
                     <div id="drop-3" class="drop-zone bottom">${data.opt3}</div>
                     <div id="drag-card">
                         <span style="font-size:1.4rem; font-weight:800; color:var(--accent-blue); text-align:center; padding: 0 5px">${data.word}</span>
-                        <span style="color:#a0aec0; font-size:0.8rem; margin-top:5px;">${data.trans}</span>
+                        <span style="color:#a0aec0; font-size:0.8rem; margin-top:5px;">${data.trans || ''}</span>
                     </div>
                 `;
                 initDragLogic(parseInt(data.correct));
             } else if (currentMode === 'blanks') {
-                const parts = data.sentence.split('___');
+                const parts = (data.sentence || "").split('___');
                 const opts = [data.opt0, data.opt1, data.opt2, data.opt3];
                 area.innerHTML = `
                     <div style="display:flex; flex-direction:column; align-items:center; gap:20px; width:100%;">
-                        <div class="sentence-display">${parts[0]} <span class="blank-placeholder" id="placeholder">___</span> ${parts[1]}</div>
+                        <div class="sentence-display">${parts[0] || ''} <span class="blank-placeholder" id="placeholder">___</span> ${parts[1] || ''}</div>
                         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; width:100%; max-width:280px;">
                             ${opts.map((opt, i) => `<button class="word-chip" onclick="checkBlankChoice(${i}, ${data.correct}, this)">${opt}</button>`).join('')}
                         </div>
                     </div>
                 `;
             } else if (currentMode === 'const') {
-                const chips = data.chips.split(',').sort(() => Math.random() - 0.5);
+                const chips = String(data.chips || "").split(',').sort(() => Math.random() - 0.5);
                 area.innerHTML = `
                     <div style="display:flex; flex-direction:column; align-items:center; gap:15px; width:100%;">
-                        <div class="translation-hint">${data.ru}</div>
+                        <div class="translation-hint">${data.ru || ''}</div>
                         <div id="built-sentence" class="sentence-display" style="min-height:40px; border-bottom:2px dashed #d1d9e9; width:100%; max-width:320px;">
                             ${builtArr.join(' ')}
                         </div>
@@ -293,8 +315,8 @@
 
         function handleConstClick(btn, target) {
             builtArr.push(btn.innerText);
-            if (target.startsWith(builtArr.join(' '))) {
-                if (builtArr.join(' ') === target) {
+            if (String(target).startsWith(builtArr.join(' '))) {
+                if (builtArr.join(' ') === String(target)) {
                     currentIndex++; builtArr = []; setTimeout(renderStep, 300);
                 } else { renderStep(); }
             } else {
@@ -317,7 +339,7 @@
         }
 
         function resetApp() {
-            if(confirm("Сбросить весь прогресс и начать с 1 раунда во всех режимах?")) {
+            if(confirm("Сбросить весь прогресс и начать с 1 раунда?")) {
                 localStorage.clear();
                 location.reload();
             }
