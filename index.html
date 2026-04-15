@@ -78,7 +78,6 @@
         }
         .word-chip:active { box-shadow: var(--inner-shadow); transform: scale(0.95); }
 
-        /* ─── Loader ─────────────────────────────────────── */
         #loader {
             position: fixed; inset: 0; background: var(--bg-color); z-index: 3000;
             display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 16px;
@@ -90,14 +89,12 @@
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* ─── Error banner ───────────────────────────────── */
         #error-banner {
             display: none; position: fixed; top: 0; left: 0; right: 0; z-index: 4000;
             background: var(--wrong); color: #fff; font-weight: 700; font-size: 0.85rem;
             padding: 10px 16px; text-align: center;
         }
 
-        /* ─── Finish overlay ─────────────────────────────── */
         #finish-overlay {
             position: fixed; top: 50%; left: 50%; width: 0; height: 0;
             background: radial-gradient(circle, #764ba2 0%, #ff85a2 100%);
@@ -126,7 +123,7 @@
     <div id="loader">
         <h2 class="names">Подключаемся к знаниям...</h2>
         <div class="loader-spinner"></div>
-        <p style="color: #a0aec0; margin:0;">Загрузка Google Sheets</p>
+        <p style="color: #a0aec0; margin:0;">Загрузка локальных данных</p>
     </div>
 
     <div id="finish-overlay">
@@ -159,39 +156,30 @@
 
     <script>
     // ==========================================
-    // 🔗 ССЫЛКИ НА CSV
+    // 🔗 ФАЙЛЫ ДАННЫХ (Должны лежать в GitHub рядом с index.html)
     // ==========================================
-    // Прокси нужен чтобы обойти CORS-блокировку Google Sheets
-    const PROXY = "https://corsproxy.io/?";
-
     const SHEET_LINKS = {
-        dict:   PROXY + encodeURIComponent("https://docs.google.com/spreadsheets/d/e/2PACX-1vTZZ_UzEvNbXn4QX_va2kX0DcsFKz30Zt-ygcrPs2mUR7azlidmrBfpKGDEjFWt234ZnoNUmJ0qoZI3/pub?gid=0&single=true&output=csv"),
-        blanks: PROXY + encodeURIComponent("https://docs.google.com/spreadsheets/d/e/2PACX-1vTZZ_UzEvNbXn4QX_va2kX0DcsFKz30Zt-ygcrPs2mUR7azlidmrBfpKGDEjFWt234ZnoNUmJ0qoZI3/pub?gid=726200189&single=true&output=csv"),
-        const:  PROXY + encodeURIComponent("https://docs.google.com/spreadsheets/d/e/2PACX-1vTZZ_UzEvNbXn4QX_va2kX0DcsFKz30Zt-ygcrPs2mUR7azlidmrBfpKGDEjFWt234ZnoNUmJ0qoZI3/pub?gid=1342412199&single=true&output=csv")
+        dict:   "dict.csv",
+        blanks: "blanks.csv",
+        const:  "const.csv"
     };
 
     let RAW_DATA = { dict: [], blanks: [], const: [] };
     let currentMode   = 'dict';
     let currentIndex  = 0;
-    let dragX = 0, dragY = 0;   // переименовано из x/y чтобы не конфликтовало с глобальными
+    let dragX = 0, dragY = 0;
     let builtArr = [];
 
-    // Прогресс раундов
     let roundProgress = {
         dict:   parseInt(localStorage.getItem('round_dict'))   || 1,
         blanks: parseInt(localStorage.getItem('round_blanks')) || 1,
         const:  parseInt(localStorage.getItem('round_const'))  || 1
     };
 
-    // ── Утилита: безопасное экранирование строки для inline-атрибутов ──────────
     function escAttr(str) {
-        return String(str)
-            .replace(/\\/g, '\\\\')
-            .replace(/'/g, "\\'")
-            .replace(/"/g, '&quot;');
+        return String(str).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;');
     }
 
-    // ── Показ ошибки ──────────────────────────────────────────────────────────
     function showError(msg) {
         const banner = document.getElementById('error-banner');
         banner.textContent = msg;
@@ -199,34 +187,28 @@
         setTimeout(() => banner.style.display = 'none', 5000);
     }
 
-    // ── Загрузка данных ───────────────────────────────────────────────────────
     async function init() {
         try {
             for (let mode in SHEET_LINKS) {
                 const response = await fetch(SHEET_LINKS[mode]);
-                if (!response.ok) throw new Error(`HTTP ${response.status} для режима "${mode}"`);
+                if (!response.ok) throw new Error(`Файл ${SHEET_LINKS[mode]} не найден!`);
                 const csvText = await response.text();
                 const parsed = Papa.parse(csvText, { header: true, skipEmptyLines: true });
-                if (parsed.errors.length) {
-                    console.warn(`Предупреждения CSV [${mode}]:`, parsed.errors);
-                }
                 RAW_DATA[mode] = parsed.data;
             }
             document.getElementById('loader').style.display = 'none';
             renderStep();
         } catch (e) {
-            showError(`Ошибка загрузки: ${e.message}. Проверь публикацию таблиц в CSV.`);
+            showError(`Ошибка загрузки: ${e.message}. Проверь, что файлы .csv загружены на GitHub.`);
             document.getElementById('loader').style.display = 'none';
         }
     }
 
-    // ── Получить данные текущего раунда ───────────────────────────────────────
     function getActiveData() {
         const r = roundProgress[currentMode];
         return RAW_DATA[currentMode].filter(item => parseInt(item.round) === r);
     }
 
-    // ── Сменить режим ─────────────────────────────────────────────────────────
     function setMode(mode) {
         currentMode  = mode;
         currentIndex = 0;
@@ -236,7 +218,6 @@
         renderStep();
     }
 
-    // ── Главная функция отрисовки ─────────────────────────────────────────────
     function renderStep() {
         const area     = document.getElementById('game-area');
         const modeData = getActiveData();
@@ -246,7 +227,7 @@
         document.getElementById('round-title').innerText = `${getModeName(currentMode)} | Раунд ${curRound}`;
 
         if (total === 0) {
-            area.innerHTML = `<div style="text-align:center; color:var(--text-main)">Раунды в этом режиме закончились!<br>Ты молодец! 🏆</div>`;
+            area.innerHTML = `<div style="text-align:center; color:var(--text-main)">Раунды в этом режиме закончились!<br>Нажми "Сбросить всё", чтобы начать сначала. 🏆</div>`;
             document.getElementById('progress-fill').style.width = '100%';
             document.getElementById('progress-percent').innerText = '100%';
             document.getElementById('step-counter').innerText = '0/0';
@@ -264,7 +245,6 @@
         document.getElementById('progress-percent').innerText  = percent + '%';
         document.getElementById('step-counter').innerText      = (currentIndex + 1) + '/' + total;
 
-        // ── Режим: Словарик ──────────────────────────────────────────────────
         if (currentMode === 'dict') {
             area.innerHTML = `
                 <div id="drop-0" class="drop-zone top">${data.opt0 || ''}</div>
@@ -276,24 +256,18 @@
                     <span style="color:#a0aec0; font-size:0.8rem; margin-top:5px;">${data.trans || ''}</span>
                 </div>
             `;
-            // ИСПРАВЛЕНО: parseInt с fallback на 0
             const correctIdx = parseInt(data.correct) >= 0 ? parseInt(data.correct) : 0;
             initDragLogic(correctIdx);
 
-        // ── Режим: Пропуски ──────────────────────────────────────────────────
         } else if (currentMode === 'blanks') {
-            const sentence = data.sentence || '';
-            const parts = sentence.split('___');
-            // защита: если нет ___ — показываем всё предложение целиком
-            const before = parts[0] || '';
-            const after  = parts[1] || '';
+            const parts = (data.sentence || '').split('___');
             const opts   = [data.opt0, data.opt1, data.opt2, data.opt3];
             const correctIdx = parseInt(data.correct) >= 0 ? parseInt(data.correct) : 0;
 
             area.innerHTML = `
                 <div style="display:flex; flex-direction:column; align-items:center; gap:20px; width:100%;">
                     <div class="sentence-display">
-                        ${before}<span class="blank-placeholder" id="placeholder">___</span>${after}
+                        ${parts[0] || ''}<span class="blank-placeholder" id="placeholder">___</span>${parts[1] || ''}
                     </div>
                     <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; width:100%; max-width:280px;">
                         ${opts.map((opt, i) =>
@@ -303,10 +277,8 @@
                 </div>
             `;
 
-        // ── Режим: Сборка ────────────────────────────────────────────────────
         } else if (currentMode === 'const') {
             const chipsRaw = (data.chips || '').split(',').map(w => w.trim()).filter(Boolean);
-            // Перемешиваем один раз при первом показе карточки
             const chips = [...chipsRaw].sort(() => Math.random() - 0.5);
             const correct = (data.correct || '').trim();
 
@@ -328,24 +300,16 @@
         }
     }
 
-    // ── Отрисовка чипов для режима "Сборка" ──────────────────────────────────
     function renderChips(chips, correct) {
-        // считаем сколько раз каждое слово встречается в chips
         const totalCount = {};
         chips.forEach(w => { totalCount[w] = (totalCount[w] || 0) + 1; });
-
-        // считаем сколько раз уже добавлено в builtArr
         const usedCount = {};
         builtArr.forEach(w => { usedCount[w] = (usedCount[w] || 0) + 1; });
 
         return chips.map((word, idx) => {
             const used    = usedCount[word] || 0;
-            const total   = totalCount[word];
-            // скрываем уже использованные копии (по индексу дубликата)
             const dupIdx  = chips.slice(0, idx).filter(w => w === word).length;
             const hidden  = dupIdx < used;
-
-            // ИСПРАВЛЕНО: экранируем word и correct для безопасной вставки в атрибут
             return `<button class="word-chip"
                 style="${hidden ? 'visibility:hidden; pointer-events:none;' : ''}"
                 onclick="handleConstClick(this, '${escAttr(correct)}', '${escAttr(word)}')"
@@ -353,7 +317,6 @@
         }).join('');
     }
 
-    // ── Очистить собранную фразу ──────────────────────────────────────────────
     function clearBuilt() {
         builtArr = [];
         renderStep();
@@ -363,25 +326,19 @@
         return m === 'dict' ? 'Словарик' : m === 'blanks' ? 'Пропуски' : 'Сборка';
     }
 
-    // ── Drag-and-drop для режима "Словарик" ───────────────────────────────────
     function initDragLogic(correctIdx) {
         dragX = 0; dragY = 0;
-
         interact('#drag-card').draggable({
             listeners: {
                 move(e) {
-                    dragX += e.dx;
-                    dragY += e.dy;
+                    dragX += e.dx; dragY += e.dy;
                     e.target.style.transform = `translate(${dragX}px, ${dragY}px) rotate(${dragX / 15}deg)`;
                 },
                 end(e) {
-                    // ИСПРАВЛЕНО: убираем transition до сброса, иначе следующий drag "прыгает"
                     dragX = 0; dragY = 0;
                     e.target.style.transition = 'transform 0.4s ease';
                     e.target.style.transform  = 'translate(0,0) rotate(0deg)';
-                    setTimeout(() => {
-                        if (e.target) e.target.style.transition = '';
-                    }, 420);
+                    setTimeout(() => { if (e.target) e.target.style.transition = ''; }, 420);
                 }
             }
         });
@@ -401,7 +358,6 @@
         });
     }
 
-    // ── Проверка ответа в режиме "Пропуски" ───────────────────────────────────
     function checkBlankChoice(idx, correct, btn) {
         if (idx === correct) {
             btn.classList.add('is-correct-bg');
@@ -414,31 +370,19 @@
         }
     }
 
-    // ── Нажатие на чип в режиме "Сборка" ────────────────────────────────────
-    // ИСПРАВЛЕНО: word передаётся как аргумент, а не читается из btn.innerText
-    // (чтобы избежать проблем с HTML-энтитями и пробелами)
     function handleConstClick(btn, target, word) {
         builtArr.push(word);
         const built = builtArr.join(' ');
-
         if (target.startsWith(built)) {
             if (built === target) {
-                // Готово!
-                currentIndex++;
-                builtArr = [];
-                setTimeout(renderStep, 300);
-            } else {
-                // Частично верно — продолжаем
-                renderStep();
-            }
+                currentIndex++; builtArr = []; setTimeout(renderStep, 300);
+            } else { renderStep(); }
         } else {
-            // Неверно — подсвечиваем и сбрасываем
             btn.classList.add('is-wrong-bg');
             setTimeout(() => { builtArr = []; renderStep(); }, 500);
         }
     }
 
-    // ── Финиш раунда ─────────────────────────────────────────────────────────
     function showFinish() {
         document.getElementById('finish-overlay').classList.add('active');
         confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
@@ -453,7 +397,7 @@
     }
 
     function resetApp() {
-        if (confirm("Сбросить весь прогресс и начать с 1 раунда во всех режимах?")) {
+        if (confirm("Сбросить весь прогресс и начать с 1 раунда?")) {
             localStorage.clear();
             location.reload();
         }
