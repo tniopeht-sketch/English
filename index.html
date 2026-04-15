@@ -87,7 +87,6 @@
             min-height: 0; 
         }
 
-        /* ВОЗВРАЩЕННЫЙ СЧЕТЧИК */
         #step-counter {
             position: absolute; 
             bottom: 20px; 
@@ -110,7 +109,6 @@
         }
         .top { top: 0px; } .bottom { bottom: 0px; } .left { left: 10px; } .right { right: 10px; }
         
-        /* ВЫПУКЛАЯ КАРТОЧКА (NEUMORPHISM) */
         #drag-card {
             width: 130px; height: 170px; 
             background: var(--bg-color); 
@@ -218,8 +216,7 @@
         </div>
     </header>
 
-    <main class="game-container" id="game-area">
-        </main>
+    <main class="game-container" id="game-area"></main>
     <div id="step-counter">0/0</div>
 
     <nav class="tab-bar">
@@ -372,15 +369,13 @@
     }
 
     function renderChips(chips, correct) {
-        const totalCount = {};
-        chips.forEach(w => { totalCount[w] = (totalCount[w] || 0) + 1; });
         const usedCount = {};
         builtArr.forEach(w => { usedCount[w] = (usedCount[w] || 0) + 1; });
 
         return chips.map((word, idx) => {
-            const used    = usedCount[word] || 0;
-            const dupIdx  = chips.slice(0, idx).filter(w => w === word).length;
-            const hidden  = dupIdx < used;
+            const used   = usedCount[word] || 0;
+            const dupIdx = chips.slice(0, idx).filter(w => w === word).length;
+            const hidden = dupIdx < used;
             return `<button class="word-chip"
                 style="${hidden ? 'visibility:hidden; pointer-events:none;' : ''}"
                 onclick="handleConstClick(this, '${escAttr(correct)}', '${escAttr(word)}')"
@@ -399,20 +394,27 @@
 
     function initDragLogic(correctIdx) {
         dragX = 0; dragY = 0;
+
+        // ── ИСПРАВЛЕНИЕ БАГА: флаг не даёт двум зонам сработать за один бросок ──
+        let dropHandled = false;
+
         interact('#drag-card').draggable({
             listeners: {
+                start() {
+                    dropHandled = false; // новый бросок — сбрасываем флаг
+                },
                 move(e) {
                     dragX += e.dx; dragY += e.dy;
                     e.target.style.transform = `translate(${dragX}px, ${dragY}px) rotate(${dragX / 12}deg)`;
-                    e.target.style.animation = 'none'; 
+                    e.target.style.animation = 'none';
                 },
                 end(e) {
                     dragX = 0; dragY = 0;
                     e.target.style.transition = 'transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
                     e.target.style.transform  = 'translate(0,0) rotate(0deg)';
-                    setTimeout(() => { 
+                    setTimeout(() => {
                         if (e.target) {
-                            e.target.style.transition = ''; 
+                            e.target.style.transition = '';
                             e.target.style.animation = 'pulse-card 4s infinite ease-in-out';
                         }
                     }, 420);
@@ -423,14 +425,16 @@
         interact('.drop-zone').dropzone({
             overlap: 0.15,
             ondrop(e) {
+                if (dropHandled) return; // уже обработан этот бросок — игнорируем
+
                 const zoneIdx = parseInt(e.target.id.split('-')[1]);
                 if (zoneIdx === correctIdx) {
-                    // ПРАВИЛЬНО: Фейерверк + переход
+                    dropHandled = true; // правильно — блокируем остальные зоны
                     e.target.classList.add('is-correct-bg');
                     confetti({ particleCount: 40, spread: 50, origin: { y: 0.8 }, colors: ['#667eea', '#ff85a2'] });
                     setTimeout(() => { currentIndex++; renderStep(); }, 500);
                 } else {
-                    // ОШИБКА: Только красная подсветка, без перехода
+                    // Неверно — флаг НЕ ставим, можно попробовать снова
                     e.target.classList.add('is-wrong-bg');
                     setTimeout(() => e.target.classList.remove('is-wrong-bg'), 800);
                 }
