@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Лера и Женя: English Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
@@ -13,6 +14,7 @@
             --bg-color: #f2f0f9; 
             --text-main: #5e6d81;
             --accent-blue: #667eea;
+            --accent-pink: #ff85a2;
             --correct: #a8e6cf;
             --wrong: #ff8b94;
             --soft-shadow: 8px 8px 16px #d1d9e9, -8px -8px 16px #ffffff;
@@ -20,9 +22,15 @@
         }
 
         body {
-            margin: 0; background: linear-gradient(135deg, #f2f0f9 0%, #e6e9f0 100%);
-            font-family: -apple-system, system-ui, sans-serif; height: 100vh; 
-            display: flex; flex-direction: column; overflow: hidden; position: relative;
+            margin: 0; 
+            background: linear-gradient(135deg, #f2f0f9 0%, #e6e9f0 100%);
+            font-family: -apple-system, system-ui, sans-serif; 
+            height: 100dvh; 
+            display: flex; 
+            flex-direction: column; 
+            overflow: hidden; 
+            position: relative;
+            box-sizing: border-box;
         }
 
         body::before {
@@ -31,50 +39,98 @@
             background-size: 25px 25px; z-index: -1;
         }
 
-        .header { padding: 15px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
-        .app-title-card {
-            background: var(--bg-color); padding: 8px 20px; border-radius: 50px;
-            box-shadow: 6px 6px 12px #d1d9e9, -6px -6px 12px #ffffff;
-            display: flex; flex-direction: column; align-items: center; min-width: 220px;
+        .header { 
+            padding: 10px 15px; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            gap: 5px; 
+            flex-shrink: 0;
         }
-        .names { font-weight: 800; background: linear-gradient(45deg, #ff85a2, #4facfe); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 1.1rem; }
-        .round-info { color: #667eea; font-size: 0.8rem; font-weight: 700; margin-top: 2px; }
+        
+        .app-title-card {
+            background: var(--bg-color); 
+            padding: 10px 25px; 
+            border-radius: 50px;
+            box-shadow: 6px 6px 12px #d1d9e9, -6px -6px 12px #ffffff;
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            min-width: 220px;
+        }
+        .names { font-weight: 800; background: linear-gradient(45deg, #ff85a2, #4facfe); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 1.1rem; line-height: 1.2; }
+        
+        /* ВЕСЕЛЫЙ ШРИФТ ДЛЯ LEARN ENGLISH */
+        .sub-title { 
+            font-family: 'Comfortaa', cursive;
+            font-size: 0.9rem; 
+            background: linear-gradient(45deg, #667eea, #ff85a2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700; 
+            letter-spacing: 1px;
+            margin-top: 2px;
+        }
+        .round-info { color: #667eea; font-size: 0.75rem; font-weight: 700; margin-top: 4px; opacity: 0.8; }
 
-        .progress-container { width: 100%; max-width: 280px; margin-top: 5px; }
-        .progress-info { display: flex; justify-content: center; font-size: 0.75rem; font-weight: 800; color: var(--accent-blue); margin-bottom: 4px; }
-        .progress-track { height: 10px; background: var(--bg-color); border-radius: 10px; box-shadow: var(--inner-shadow); overflow: hidden; }
+        .progress-container { width: 100%; max-width: 260px; margin-top: 5px; }
+        .progress-info { display: flex; justify-content: center; font-size: 0.7rem; font-weight: 800; color: var(--accent-blue); margin-bottom: 2px; }
+        .progress-track { height: 8px; background: var(--bg-color); border-radius: 10px; box-shadow: var(--inner-shadow); overflow: hidden; }
         .progress-fill { width: 0%; height: 100%; background: linear-gradient(90deg, #667eea, #764ba2); transition: width 0.5s ease; }
 
-        .game-container { flex: 1; position: relative; display: flex; justify-content: center; align-items: center; padding: 20px; transition: opacity 0.5s; }
+        .game-container { 
+            flex: 1; 
+            position: relative; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            padding: 10px; 
+            min-height: 0; 
+        }
 
         #step-counter {
-            position: absolute; bottom: 15px; right: 15px; font-size: 0.85rem; font-weight: 800; color: #a0aec0;
+            position: absolute; bottom: 10px; right: 15px; font-size: 0.8rem; font-weight: 800; color: #a0aec0;
             background: var(--bg-color); padding: 4px 10px; border-radius: 20px; box-shadow: 4px 4px 8px #d1d9e9, -4px -4px 8px #ffffff;
         }
 
+        /* ЗОНЫ ПРИЕМКИ */
         .drop-zone {
-            position: absolute; width: 110px; height: 150px; display: flex; align-items: center; justify-content: center;
-            background: var(--bg-color); border-radius: 25px; font-weight: 600; color: var(--text-main);
-            box-shadow: var(--inner-shadow); transition: all 0.3s; font-size: 0.9rem; text-align: center; padding: 8px; box-sizing: border-box;
+            position: absolute; width: 105px; height: 140px; display: flex; align-items: center; justify-content: center;
+            background: var(--bg-color); border-radius: 25px; font-weight: 700; color: var(--text-main);
+            box-shadow: var(--inner-shadow); transition: all 0.3s; font-size: 0.85rem; text-align: center; padding: 8px; box-sizing: border-box;
+            border: 2px solid transparent;
         }
         .top { top: 0px; } .bottom { bottom: 0px; } .left { left: 10px; } .right { right: 10px; }
         
+        /* ВЫРАЗИТЕЛЬНАЯ ЦЕНТРАЛЬНАЯ КАРТОЧКА */
         #drag-card {
-            width: 120px; height: 160px; background: var(--bg-color); border-radius: 30px;
+            width: 125px; height: 165px; 
+            background: white; 
+            border-radius: 35px;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            box-shadow: 10px 10px 20px #d1d9e9, -10px -10px 20px #ffffff; touch-action: none; z-index: 100;
+            box-shadow: 15px 15px 30px #cbd5e0, -5px -5px 15px #ffffff; 
+            touch-action: none; z-index: 100;
             cursor: grab;
+            border: 3px solid #fff;
+            animation: pulse-card 3s infinite ease-in-out;
         }
-        #drag-card:active { cursor: grabbing; }
+        
+        @keyframes pulse-card {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.03); box-shadow: 18px 18px 35px #b8c2d1, -5px -5px 15px #ffffff; }
+            100% { transform: scale(1); }
+        }
 
-        .sentence-display { font-size: 1.2rem; font-weight: 600; color: var(--text-main); text-align: center; line-height: 1.4; }
-        .translation-hint { font-size: 0.9rem; color: #a0aec0; margin-bottom: 15px; font-style: italic; text-align: center; }
-        .blank-placeholder { border-bottom: 2px dashed var(--accent-blue); padding: 0 10px; color: #a0aec0; }
+        #drag-card:active { cursor: grabbing; animation: none; transform: scale(1.1); }
+
+        .sentence-display { font-size: 1.15rem; font-weight: 600; color: var(--text-main); text-align: center; line-height: 1.4; padding: 0 15px; }
+        .translation-hint { font-size: 0.9rem; color: #a0aec0; margin-bottom: 12px; font-style: italic; text-align: center; }
+        .blank-placeholder { border-bottom: 3px solid var(--accent-blue); padding: 0 8px; color: var(--accent-blue); font-weight: 800; }
         
         .word-chip {
             padding: 12px 16px; background: var(--bg-color); border-radius: 15px;
             box-shadow: 6px 6px 12px #d1d9e9, -6px -6px 12px #ffffff;
-            border: none; cursor: pointer; color: var(--text-main); font-weight: 600; transition: 0.2s;
+            border: none; cursor: pointer; color: var(--text-main); font-weight: 700; transition: 0.2s; font-size: 0.95rem;
         }
         .word-chip:active { box-shadow: var(--inner-shadow); transform: scale(0.95); }
 
@@ -104,16 +160,25 @@
         }
         #finish-overlay.active { width: 300vmax; height: 300vmax; opacity: 1; border-radius: 0; pointer-events: auto; }
         
-        .tab-bar { padding-bottom: env(safe-area-inset-bottom, 20px); display: flex; justify-content: center; gap: 8px; padding-top: 10px; }
-        .nav-btn {
-            padding: 12px 10px; border-radius: 15px; border: none; background: var(--bg-color);
-            box-shadow: 5px 5px 10px #d1d9e9, -5px -5px 10px #ffffff; color: #7e8ba3; font-weight: 700; font-size: 0.7rem;
-            cursor: pointer;
+        .tab-bar { 
+            padding-bottom: max(15px, env(safe-area-inset-bottom)); 
+            display: flex; 
+            justify-content: center; 
+            gap: 10px; 
+            padding-top: 10px;
+            flex-shrink: 0;
+            background: rgba(242, 240, 249, 0.7);
+            backdrop-filter: blur(15px);
         }
-        .nav-btn.active { color: var(--accent-blue); box-shadow: var(--inner-shadow); }
+        .nav-btn {
+            padding: 12px 12px; border-radius: 18px; border: none; background: var(--bg-color);
+            box-shadow: 4px 4px 8px #d1d9e9, -4px -4px 8px #ffffff; color: #7e8ba3; font-weight: 700; font-size: 0.7rem;
+            cursor: pointer; transition: 0.3s;
+        }
+        .nav-btn.active { color: var(--accent-blue); box-shadow: var(--inner-shadow); transform: scale(1.05); }
 
-        .is-correct-bg { background-color: var(--correct) !important; box-shadow: inset 4px 4px 8px #8ac7b1 !important; }
-        .is-wrong-bg { background-color: var(--wrong) !important; box-shadow: inset 4px 4px 8px #e27a82 !important; }
+        .is-correct-bg { background-color: var(--correct) !important; color: #2d5a4c !important; box-shadow: inset 4px 4px 8px #8ac7b1 !important; border-color: #8ac7b1 !important; }
+        .is-wrong-bg { background-color: var(--wrong) !important; color: white !important; box-shadow: inset 4px 4px 8px #e27a82 !important; }
     </style>
 </head>
 <body>
@@ -121,22 +186,22 @@
     <div id="error-banner"></div>
 
     <div id="loader">
-        <h2 class="names">Подключаемся к знаниям...</h2>
+        <h2 class="names" style="font-family: 'Comfortaa';">Загружаем магию...</h2>
         <div class="loader-spinner"></div>
-        <p style="color: #a0aec0; margin:0;">Загрузка локальных данных</p>
     </div>
 
     <div id="finish-overlay">
-        <h1 style="color:white; text-align:center; font-size: 2rem; margin-bottom: 20px;">РАУНД ЗАВЕРШЕН! 🎉</h1>
+        <h1 style="color:white; text-align:center; font-family: 'Comfortaa'; font-size: 2.2rem; margin-bottom: 20px;">ТЫ СУПЕР! 🎉</h1>
         <div style="display:flex; flex-direction:column; gap:12px;">
-            <button class="word-chip" onclick="nextRound()">Следующий раунд</button>
-            <button class="word-chip" onclick="resetApp()" style="background:#ff8b94; color:white;">Сбросить всё (1 раунд)</button>
+            <button class="word-chip" onclick="nextRound()">Ещё раунд!</button>
+            <button class="word-chip" onclick="resetApp()" style="background:#ff8b94; color:white;">Начать сначала</button>
         </div>
     </div>
 
     <header class="header">
         <div class="app-title-card">
             <span class="names">Лера и Женя</span>
+            <span class="sub-title">Learn English</span>
             <span class="round-info" id="round-title">Загрузка...</span>
         </div>
         <div class="progress-container">
@@ -149,15 +214,12 @@
     <div id="step-counter">0/0</div>
 
     <nav class="tab-bar">
-        <button id="nav-dict"   class="nav-btn active" onclick="setMode('dict')">🃏 Словарик</button>
+        <button id="nav-dict"   class="nav-btn active" onclick="setMode('dict')">🃏 Слова</button>
         <button id="nav-blanks" class="nav-btn"        onclick="setMode('blanks')">✍️ Пропуски</button>
         <button id="nav-const"  class="nav-btn"        onclick="setMode('const')">🧩 Сборка</button>
     </nav>
 
     <script>
-    // ==========================================
-    // 🔗 ФАЙЛЫ ДАННЫХ (Должны лежать в GitHub рядом с index.html)
-    // ==========================================
     const SHEET_LINKS = {
         dict:   "dict.csv",
         blanks: "blanks.csv",
@@ -199,7 +261,7 @@
             document.getElementById('loader').style.display = 'none';
             renderStep();
         } catch (e) {
-            showError(`Ошибка загрузки: ${e.message}. Проверь, что файлы .csv загружены на GitHub.`);
+            showError(`Ошибка загрузки: ${e.message}.`);
             document.getElementById('loader').style.display = 'none';
         }
     }
@@ -227,7 +289,7 @@
         document.getElementById('round-title').innerText = `${getModeName(currentMode)} | Раунд ${curRound}`;
 
         if (total === 0) {
-            area.innerHTML = `<div style="text-align:center; color:var(--text-main)">Раунды в этом режиме закончились!<br>Нажми "Сбросить всё", чтобы начать сначала. 🏆</div>`;
+            area.innerHTML = `<div style="text-align:center; color:var(--text-main); padding:20px; font-family:'Comfortaa'">Все раунды пройдены! 🏆</div>`;
             document.getElementById('progress-fill').style.width = '100%';
             document.getElementById('progress-percent').innerText = '100%';
             document.getElementById('step-counter').innerText = '0/0';
@@ -252,8 +314,8 @@
                 <div id="drop-2" class="drop-zone right">${data.opt2 || ''}</div>
                 <div id="drop-3" class="drop-zone bottom">${data.opt3 || ''}</div>
                 <div id="drag-card">
-                    <span style="font-size:1.4rem; font-weight:800; color:var(--accent-blue); text-align:center; padding: 0 5px">${data.word || ''}</span>
-                    <span style="color:#a0aec0; font-size:0.8rem; margin-top:5px;">${data.trans || ''}</span>
+                    <span style="font-size:1.4rem; font-weight:800; color:var(--accent-blue); text-align:center; padding: 0 10px">${data.word || ''}</span>
+                    <span style="color:#a0aec0; font-size:0.85rem; margin-top:8px; font-weight:600;">${data.trans || ''}</span>
                 </div>
             `;
             const correctIdx = parseInt(data.correct) >= 0 ? parseInt(data.correct) : 0;
@@ -332,23 +394,30 @@
             listeners: {
                 move(e) {
                     dragX += e.dx; dragY += e.dy;
-                    e.target.style.transform = `translate(${dragX}px, ${dragY}px) rotate(${dragX / 15}deg)`;
+                    e.target.style.transform = `translate(${dragX}px, ${dragY}px) rotate(${dragX / 12}deg)`;
+                    e.target.style.animation = 'none'; // Остановить пульсацию при перетаскивании
                 },
                 end(e) {
                     dragX = 0; dragY = 0;
-                    e.target.style.transition = 'transform 0.4s ease';
+                    e.target.style.transition = 'transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
                     e.target.style.transform  = 'translate(0,0) rotate(0deg)';
-                    setTimeout(() => { if (e.target) e.target.style.transition = ''; }, 420);
+                    setTimeout(() => { 
+                        if (e.target) {
+                            e.target.style.transition = ''; 
+                            e.target.style.animation = 'pulse-card 3s infinite ease-in-out';
+                        }
+                    }, 420);
                 }
             }
         });
 
         interact('.drop-zone').dropzone({
-            overlap: 0.1,
+            overlap: 0.15,
             ondrop(e) {
                 const zoneIdx = parseInt(e.target.id.split('-')[1]);
                 if (zoneIdx === correctIdx) {
                     e.target.classList.add('is-correct-bg');
+                    confetti({ particleCount: 40, spread: 50, origin: { y: 0.8 }, colors: ['#667eea', '#ff85a2'] });
                     setTimeout(() => { currentIndex++; renderStep(); }, 500);
                 } else {
                     e.target.classList.add('is-wrong-bg');
@@ -397,7 +466,7 @@
     }
 
     function resetApp() {
-        if (confirm("Сбросить весь прогресс и начать с 1 раунда?")) {
+        if (confirm("Сбросить всё и начать с 1 раунда?")) {
             localStorage.clear();
             location.reload();
         }
