@@ -161,11 +161,13 @@
     // ==========================================
     // 🔗 ССЫЛКИ НА CSV
     // ==========================================
+    // Прокси нужен чтобы обойти CORS-блокировку Google Sheets
+    const PROXY = "https://corsproxy.io/?";
+
     const SHEET_LINKS = {
-        // ⚠️ ИСПРАВЛЕНО: dict тоже использует output=csv (раньше был pubhtml — HTML вместо CSV!)
-        dict:   "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZZ_UzEvNbXn4QX_va2kX0DcsFKz30Zt-ygcrPs2mUR7azlidmrBfpKGDEjFWt234ZnoNUmJ0qoZI3/pub?gid=0&single=true&output=csv",
-        blanks: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZZ_UzEvNbXn4QX_va2kX0DcsFKz30Zt-ygcrPs2mUR7azlidmrBfpKGDEjFWt234ZnoNUmJ0qoZI3/pub?gid=726200189&single=true&output=csv",
-        const:  "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZZ_UzEvNbXn4QX_va2kX0DcsFKz30Zt-ygcrPs2mUR7azlidmrBfpKGDEjFWt234ZnoNUmJ0qoZI3/pub?gid=1342412199&single=true&output=csv"
+        dict:   PROXY + encodeURIComponent("https://docs.google.com/spreadsheets/d/e/2PACX-1vTZZ_UzEvNbXn4QX_va2kX0DcsFKz30Zt-ygcrPs2mUR7azlidmrBfpKGDEjFWt234ZnoNUmJ0qoZI3/pub?gid=0&single=true&output=csv"),
+        blanks: PROXY + encodeURIComponent("https://docs.google.com/spreadsheets/d/e/2PACX-1vTZZ_UzEvNbXn4QX_va2kX0DcsFKz30Zt-ygcrPs2mUR7azlidmrBfpKGDEjFWt234ZnoNUmJ0qoZI3/pub?gid=726200189&single=true&output=csv"),
+        const:  PROXY + encodeURIComponent("https://docs.google.com/spreadsheets/d/e/2PACX-1vTZZ_UzEvNbXn4QX_va2kX0DcsFKz30Zt-ygcrPs2mUR7azlidmrBfpKGDEjFWt234ZnoNUmJ0qoZI3/pub?gid=1342412199&single=true&output=csv")
     };
 
     let RAW_DATA = { dict: [], blanks: [], const: [] };
