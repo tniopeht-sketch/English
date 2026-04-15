@@ -1,0 +1,101 @@
+round,sentence,opt0,opt1,opt2,opt3,correct
+1,We ___ dinner when the phone rang.,ate,were having,have eaten,are having,1
+1,She is interested ___ learning new skills.,at,on,in,for,2
+1,I don't have ___ money in my pocket.,many,any,some,no,1
+1,The movie was so ___ that I fell asleep.,boring,bored,bore,bores,0
+1,He ___ to London twice this year.,was,went,has been,is going,2
+1,You ___ smoke in the hospital.,mustn't,don't have to,couldn't,needn't,0
+1,This is the ___ building in the city.,high,higher,highest,most high,2
+1,I'll call you as soon as I ___.,arrive,will arrive,arrived,arriving,0
+1,That is the man ___ car was stolen.,who,which,whose,whom,2
+1,"Despite ___ hard, he failed the exam.",working,he worked,work,to work,0
+2,"If it ___ tomorrow, we will stay at home.",rain,rains,will rain,rained,1
+2,I've been waiting here ___ 8 o'clock.,for,since,during,from,1
+2,My brother ___ play football every Sunday.,likes to,like to,is liking,like,0
+2,The project ___ by the end of next month.,finishes,will finish,will be finished,is finishing,2
+2,I can't find my keys ___.,anywhere,somewhere,nowhere,everywhere,0
+2,This coffee is ___ hot to drink.,so,too,very,enough,1
+2,She asked me where ___ from.,do I come,I came,did I come,am I coming,1
+2,I suggest ___ a break for ten minutes.,taking,to take,take,takes,0
+2,___ you ever visited New York?,Do,Did,Have,Were,2
+2,"By the time he arrived, the meeting ___.",started,has started,had started,starts,2
+3,You should avoid ___ too much coffee.,to drink,drink,drinking,drinks,2
+3,I'm not used to ___ up so early.,get,getting,got,have got,1
+3,The house ___ in 1920.,was built,built,has built,is building,0
+3,I'll go to the party unless I ___ too tired.,will be,am,would be,was,1
+3,There isn't ___ milk left in the fridge.,many,some,no,any,3
+3,He is much ___ than his older brother.,taller,tall,tallest,more tall,0
+3,Could you tell me where the station ___?,is,is it,it is,does it,0
+3,We have lived here ___ five years.,since,for,during,ago,1
+3,I forgot ___ the front door this morning.,to lock,locking,lock,locked,0
+3,She speaks English very ___.,good,well,nice,fluent,1
+,Neither of my friends ___ the answer.,know,knows,knowing,are knowing,1
+4,I wish I ___ a faster car.,have,had,will have,am having,1
+4,Look! The bus ___.,comes,is coming,come,has come,1
+4,They decided ___ a new house next year.,to buy,buying,buy,bought,0
+4,You ___ better see a doctor.,had,would,should,must,0
+4,The suitcase is ___ heavy for me to carry.,so,too,enough,very,1
+4,Who does this pen belong ___?,at,for,to,with,2
+4,I ___ my homework when you called.,was doing,did,have done,do,0
+4,This is the ___ film I have ever seen.,worst,badder,baddest,worse,0
+4,She promised ___ late again.,not being,to not be,not to be,won't be,2
+5,I haven't seen him ___ last summer.,for,since,during,while,1
+5,"If I were you, I ___ that job.",will take,took,would take,am taking,2
+5,She is the person ___ works in the lab.,which,whose,whom,who,3
+5,We are looking forward to ___ our family.,visit,visiting,visited,will visit,1
+5,There are ___ people in the shop today.,much,any,too many,a lot,2
+5,He ___ to work every single morning.,drives,drive,is driving,has driven,0
+5,The dinner ___ by my mother right now.,cooks,is cooking,is being cooked,was cooked,2
+5,I can't find my phone ___.,nowhere,somewhere,anywhere,anywhere,3
+5,This exercise is ___ than the previous one.,easy,easier,easiest,more easy,1
+5,"You ___ pay for the water, it's free.",mustn't,don't have to,couldn't,haven't,1
+6,"By the time we got there, the film ___.",starts,has started,starting,had started,3
+6,I think it ___ rain this afternoon.,might,does,is,has,0
+6,She made me ___ my room.,to clean,cleaning,clean,cleaned,2
+6,This is the cake ___ I baked yesterday.,who,which,whose,where,1
+6,I have ___ time to finish the project.,enough,too,such,very,0
+6,They ___ football when it started to snow.,play,were playing,played,have played,1
+6,How ___ does this laptop cost?,many,long,much,far,2
+6,I don't mind ___ for a few minutes.,to wait,waiting,wait,waited,1
+6,He is very good ___ playing the guitar.,in,on,for,at,3
+6,Would you like ___ orange juice?,some,any,a,an,0
+7,I'm very tired. I ___ for five hours.,worked,am working,have been working,work,2
+7,The man ___ lives next door is a doctor.,which,who,whose,whom,1
+7,This is the ___ book I've ever read.,more interesting,interestingest,most interesting,interesting,2
+7,You shouldn't eat ___ much sugar.,many,too,enough,such,1
+7,We ___ to the cinema last Saturday.,go,have gone,went,were going,2
+7,"If she ___ harder, she would pass.",studies,studied,will study,has studied,1
+7,I am interested ___ buying a new car.,at,for,on,in,3
+7,The keys ___ on the table yesterday.,is,were,was,been,1
+7,"He ___ speaks English, but he's learning.",hardly,hard,harder,soon,0
+7,___ you like a cup of tea?,Do,Will,Would,Can,2
+8,I'll call you when I ___ home.,get,will get,getting,got,0
+8,She has ___ finished her homework.,yet,already,ever,never,1
+8,I don't know ___ to solve this problem.,what,how,why,which,1
+8,They ___ married for twenty years.,are,have been,were,will be,1
+8,This car is ___ expensive than mine.,much,more,most,very,1
+8,He didn't tell me ___ he was going.,where,what,which,who,0
+8,I'm looking for my glasses. Have you seen ___?,it,them,they,their,1
+8,There is ___ water in the bottle.,some,any,many,few,0
+8,You ___ take photos in this museum.,mustn't,don't have to,haven't,shouldn't to,0
+8,The house ___ cleaned every day.,is,are,was,been,0
+9,I suggested ___ to the park.,to go,go,going,went,2
+9,He is the boy ___ mother is a teacher.,who,whose,whom,which,1
+9,I ___ finished my work yet.,haven't,didn't,wasn't,don't,0
+9,It was ___ a cold day that we stayed in.,so,such,very,too,1
+9,We were late because our car ___ down.,broke,breaks,was broken,has broken,0
+9,Can you tell me what time ___?,is it,does it,it is,has it,2
+9,She is very good ___ languages.,in,at,for,with,1
+9,I would go if I ___ enough money.,have,had,will have,would have,1
+9,They ___ to the party tonight.,come,are coming,came,have come,1
+9,This is the ___ street in the town.,long,longer,longest,most long,2
+10,I've been living here ___ 2010.,for,since,during,from,1
+10,The letter ___ yesterday by Tom.,was written,wrote,has written,is writing,0
+10,You don't need to hurry. There is ___ time.,many,few,plenty of,any,2
+10,"I ___ see him tomorrow, but I'm not sure.",might,must,have to,am,0
+10,Does she ___ working at the hospital?,like,likes,liking,liked,0
+10,We ___ have a dog when I was a child.,used to,use to,are used to,was used to,0
+10,He asked me ___ I had seen his keys.,if,that,what,which,0
+10,I ___ my breakfast when the phone rang.,eat,have eaten,was eating,am eating,2
+10,This soup is too hot ___ eat.,for,to,so,that,1
+10,I look forward to ___ from you.,hear,hearing,heard,will hear,1
